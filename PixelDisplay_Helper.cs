@@ -2,6 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/**************************************
+PixelDisplay_Helper
+An attachable class for Camera objects to manipulate
+screen and orthographic sizes relative to native pixel
+resolutions.
+
+Member Functions:
+	- Start
+	- AdjustCamera
+	- RoundToNearestPixel
+	- ApplyZoom()
+	- WindowSetup
+
+ **************************************** */
+
 public class PixelDisplay_Helper : MonoBehaviour {
 
 	public int native_Width = 0;
@@ -23,6 +38,9 @@ public class PixelDisplay_Helper : MonoBehaviour {
 		//WiggleValues();
 	}
 
+	//Function: Adjust Camera
+	//Using the member function RoundToNearestPixel, build a 3D position 
+	//for the camera to be located at.
 	public void AdjustCamera() {
 		Camera.main.transform.position = new Vector3(
 			RoundToNearestPixel(cameraPos.x),
@@ -31,6 +49,8 @@ public class PixelDisplay_Helper : MonoBehaviour {
 		);
 	}
 
+	//Function: RoundToNearestPixel
+	//Calculate how many pixels translate to one game unit, relative to camera size.
 	public float RoundToNearestPixel(float pos) {
 		float screenPixelsPerUnit = Screen.height / (Camera.main.orthographicSize * 2f);
 		float pixelValue = Mathf.Round(pos * screenPixelsPerUnit);
@@ -38,35 +58,14 @@ public class PixelDisplay_Helper : MonoBehaviour {
 		return pixelValue / screenPixelsPerUnit;
 	}
 
+	//Function: ApplyZoom
+	//Adjust the orthographic size of the 2D camera to match the pixels per Unit.
 	public void ApplyZoom() {
 		float smallestDimension = Screen.height < Screen.width ? Screen.height : Screen.width;
 		float pixelScale = Mathf.Clamp(Mathf.Round(smallestDimension / native_Height), 1f, 8f);
 
 		Camera.main.orthographicSize = (Screen.height / (pixelsPerUnit * pixelScale)) * 0.5f;
 	}
-
-	/*void WiggleValues() {
-		//This function is being weird. It's meant to approximate within a range of values, what would scale the best for a proposed native height
-		//Right now it somehow decides that the last number is always best. I'll need to find a way to detect which values have the most zeroes 
-		//after the decimal place. Or, at least, closest to becoming a zero.
-
-		float closestLow = 1.0f;
-		float subNumber = 0.0f;
-		float proposedValue = 1.0f;
-		int optimalDimension = 0;
-
-		for(int currValue = (native_Height - wiggleRange); currValue <= (native_Height + wiggleRange); currValue++) {
-			proposedValue = Screen.height/(float)currValue;
-			Debug.Log(proposedValue);
-			subNumber = proposedValue - (int)proposedValue;
-			if(subNumber <= closestLow){
-				closestLow = subNumber;
-				optimalDimension = currValue;
-			}
-		}
-
-		Debug.Log(optimalDimension);
-	}*/
 
 	void WindowSetup() {
 		//First values

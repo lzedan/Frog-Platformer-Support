@@ -7,6 +7,15 @@ using MoreMountains.InfiniteRunnerEngine;
 namespace FrogPlatforms {
 	/*-------       CLASS: DecoVariation       -------
 	Description: This is an individual variation of decor for a single platform.
+
+	Member variables:
+		- isEnabled
+		- spawnOdds
+		- decorSet
+	
+	Member Methods:
+		- DecoVariation
+		- selectDecor
 	  -------------------------*/
 	  [System.Serializable]
 	public class DecoVariation {
@@ -22,10 +31,10 @@ namespace FrogPlatforms {
 		//This is the critical function. Selecting the decor will return the gameObject associated with
 		//the current DecoVariation object so that it can be turned on for an instanced platform.
 		public void selectDecor() {
-			if(this.isEnabled) {
+			try {
 				this.decorSet.SetActive(true);
 			}
-			else{
+			catch(System.InvalidOperationException e){
 				throw new System.InvalidOperationException("GameObject must be enabled");
 			}
 		}
@@ -35,12 +44,22 @@ namespace FrogPlatforms {
 	/*-------       CLASS: DecoOptions       -------
 	Description: A composite array of DecoVariation objects so that they don't have to be defined
 	per-platform per-instance.
+
+	Member Variables:
+		- availableOptions - The array contianing the tilemap GameObjects containing platform decorations
+
+	Member Methods:
+		- DecorOptions
+		- DecorOptions()
+		- reportLength
+		- selectVariation
+		- resetVariation
 	  -------------------------*/
 	public class DecorOptions {
 		//Internal array of DecoVariation objects that are possible for a type of game platform
 		public DecoVariation[] availableOptions;
 
-		//A shit constructor that takes zero arguments. I just need to copy between component declaration and the start function, don't @ me
+		//A constructor that takes zero arguments. I just need to copy between component declaration and the start function, don't @ me
 		public DecorOptions() {
 		}
 
@@ -55,7 +74,7 @@ namespace FrogPlatforms {
 			}
 		}
 
-		//I am absolutely not going to expose member variables. Check the length of the internal array.
+		//This function will check the length of the internal array.
 		public int reportLength() {
 			int output = 0;
 			//For some reason at start, the platforms don't have an availableOptions array yet.
@@ -130,6 +149,20 @@ namespace FrogPlatforms {
 	Description: This is an individual entity object in-game that is inherently dynamic and affects
 	points or player condition. Automatically activated depending on the ID code generated during
 	platform instancing.
+
+	Member Variables:
+		- entityType
+		- pointsToAdd
+		- pointsCollection
+		- isEnabled
+		- entityGO -> The GameObject that will implement the entity class
+	
+	Member Functions:
+		- EntityObject
+		- EntityObject()
+		- addPoints
+		- seedActivation
+		- deactivateEntity
 	  -------------------------*/
 	  [System.Serializable]
 	public class EntityObject {
@@ -214,6 +247,17 @@ namespace FrogPlatforms {
 	/*-------       CLASS: EntityScene       -------
 	Description: A composite array of EntityObject objects that is associated with a tile layout
 	platform style.
+
+	Member Variables:
+		- availableEntities - an array of EntityObject objects
+		- id_range
+
+	Member Methods:
+		- EntityScene()
+		- EntityScene([])
+		- objectActivation
+		- resetScene
+
 	  -------------------------*/
 	public class EntityScene {
 		public EntityObject[] availableEntities;
@@ -240,7 +284,8 @@ namespace FrogPlatforms {
 			}
 		}
 
-		//Still need a reset function lol
+		//Still need a reset function
+		//This gets called when the containing platform is out of bounds of the play area.
 		public void resetScene() {
 			if(this.availableEntities == null){
 				return;
